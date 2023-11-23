@@ -132,13 +132,13 @@ bool ATMFMConversionTask::Init()
                 return false;
             }
             size_buffer = 512; // XXX
-            buffer = (char *) malloc (size_buffer);
+            char* buffer1 = (char *) malloc (size_buffer);
             int countEvents = 0;
             while(!fileMFM.eof()) {
-                fileMFM.read(buffer,size_buffer);
+                fileMFM.read(buffer1,size_buffer);
                 countEvents++;
             }
-            countEvents;
+            //countEvents;
             fRun -> SetNumEvents(countEvents);
             fileMFM.close();
             //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -155,15 +155,15 @@ bool ATMFMConversionTask::Init()
                 }
                 ifstream fileMutant(minfname.c_str(),std::ios::binary | std::ios::in);
                 while(!fileMutant.eof()) {
-                    fileMutant.read(buffer,size_buffer);
+                    fileMutant.read(fBuffer,size_buffer);
                     if(!fileMutant.eof()) {
                         try {
-                            fFrameBuilder->addDataChunk(buffer,buffer+size_buffer);
+                            fFrameBuilder->addDataChunk(fBuffer,fBuffer+size_buffer);
                         }catch (const std::exception& e){
                             lx_cout << e.what() << endl;
                         }
                     }else if(fileMutant.gcount()>0) {
-                        fFrameBuilder->addDataChunk(buffer,buffer+fileMutant.gcount());
+                        fFrameBuilder->addDataChunk(fBuffer,fBuffer+fileMutant.gcount());
                     }
                 }
                 fileMutant.close();
@@ -174,7 +174,8 @@ bool ATMFMConversionTask::Init()
 
             size_t const matrixSize = 4*68*512*sizeof(double);
             //size_t const matrixSize = 512;
-            char *buffer = (char *) malloc (matrixSize);
+            //char *fBuffer = (char *) malloc (matrixSize);
+            fBuffer = (char *) malloc (matrixSize);
             lk_info<<"READ BUFFERS, matrixSize was "<< 4*68*512*sizeof(double) <<endl;
             fFileStreamForEventLoop.open(infname.c_str(),std::ios::binary | std::ios::in);
 
@@ -214,14 +215,14 @@ void ATMFMConversionTask::Exec(Option_t*)
 
     int filebuffer=0;
     fFileStreamForEventLoop.seekg(filebuffer, std::ios_base::cur);
-    fFileStreamForEventLoop.read(buffer,matrixSize);
+    fFileStreamForEventLoop.read(fBuffer,matrixSize);
     filebuffer += matrixSize;
 
     if(!fFileStreamForEventLoop.eof()) {
         try {
-            fFrameBuilder->addDataChunk(buffer,buffer+matrixSize);
+            fFrameBuilder->addDataChunk(fBuffer,fBuffer+matrixSize);
         }catch (const std::exception& e){
-            lk_error << "error occured from fFrameBuilder->addDataChunk(buffer,buffer+matrixSize)" << endl;
+            lk_error << "error occured from fFrameBuilder->addDataChunk(fBuffer,fBuffer+matrixSize)" << endl;
             lx_cout << e.what() << endl;
             fRun -> SignalEndOfRun();
             return;
@@ -229,9 +230,9 @@ void ATMFMConversionTask::Exec(Option_t*)
     }
     else if(fFileStreamForEventLoop.gcount()>0) {
         try {
-            fFrameBuilder->addDataChunk(buffer,buffer+fFileStreamForEventLoop.gcount());
+            fFrameBuilder->addDataChunk(fBuffer,fBuffer+fFileStreamForEventLoop.gcount());
         }catch (const std::exception& e){
-            lk_error << "error occured from LAST fFrameBuilder->addDataChunk(buffer,buffer+matrixSize)" << endl;
+            lk_error << "error occured from LAST fFrameBuilder->addDataChunk(fBuffer,fBuffer+matrixSize)" << endl;
             lx_cout << e.what() << endl;
             return 0;
         }

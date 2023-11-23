@@ -38,7 +38,7 @@ class ATMFMConversionTask : public LKTask
         int currit = 0;
         int percent = 0;
         int size_buffer;
-        char *buffer;
+        char *fBuffer;
         int oflcnt=0;
 
         // init parameters
