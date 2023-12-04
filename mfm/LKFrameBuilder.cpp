@@ -1,4 +1,4 @@
-#include "ATMFMFrameBuilder.hpp"
+#include "LKFrameBuilder.h"
 #include "GSpectra.h"
 #include "GNetServerRoot.h"
 #include "WaveletNew.h"
@@ -88,19 +88,19 @@ MapChanToX6::MapChanToX6() {
 MapChanToX6::~MapChanToX6() {
 }
 
-ATMFMFrameBuilder::ATMFMFrameBuilder(int port) {
+LKFrameBuilder::LKFrameBuilder(int port) {
     spectra_ = new GSpectra();
     serv_ = new GNetServerRoot(port,spectra_);
 
     serv_->StartServer();
 }
 
-ATMFMFrameBuilder::~ATMFMFrameBuilder() {
+LKFrameBuilder::~LKFrameBuilder() {
     delete serv_;
     delete spectra_;
 }
 
-void ATMFMFrameBuilder::processFrame(mfm::Frame &frame)
+void LKFrameBuilder::processFrame(mfm::Frame &frame)
 {
     lk_debug << "[processFrame]" << endl;
     //XXX
@@ -130,7 +130,7 @@ void ATMFMFrameBuilder::processFrame(mfm::Frame &frame)
     }
 }
 
-void ATMFMFrameBuilder::Init(int mode, int d2pmode) {
+void LKFrameBuilder::Init(int mode, int d2pmode) {
     //cout<<"INIT HIST SERVER"<<endl;
     framecounter = 0;
     enableroot = 0;
@@ -192,7 +192,7 @@ void ATMFMFrameBuilder::Init(int mode, int d2pmode) {
     }
 }
 
-void ATMFMFrameBuilder::InitWaveforms() {
+void LKFrameBuilder::InitWaveforms() {
     waveforms->waveform.resize(maxasad*4);
     waveforms->hasSignal.resize(maxasad*4);
     waveforms->hasHit.resize(maxasad*4); //default set to false
@@ -209,7 +209,7 @@ void ATMFMFrameBuilder::InitWaveforms() {
     }
 }
 
-void ATMFMFrameBuilder::ResetWaveforms() {
+void LKFrameBuilder::ResetWaveforms() {
     for(int i=0;i<maxasad;i++){
         for(int j=0;j<4;j++){
             if(waveforms->hasHit[i*4+j] || waveforms->hasFPN[i*4+j]){
@@ -235,7 +235,7 @@ void ATMFMFrameBuilder::ResetWaveforms() {
     waveforms->isRejected = 0;
 }
 
-void ATMFMFrameBuilder::ValidateEvent(mfm::Frame& frame)
+void LKFrameBuilder::ValidateEvent(mfm::Frame& frame)
 {
     lk_debug << "[ValidateEvent]" << endl;
     if(frame.header().isLayeredFrame()) {
@@ -267,7 +267,7 @@ void ATMFMFrameBuilder::ValidateEvent(mfm::Frame& frame)
     }
 }
 
-void ATMFMFrameBuilder::ValidateFrame(mfm::Frame& frame)
+void LKFrameBuilder::ValidateFrame(mfm::Frame& frame)
 {
     UInt_t coboIdx = frame.headerField("coboIdx").value<UInt_t>();
     UInt_t asadIdx = frame.headerField("asadIdx").value<UInt_t>();
@@ -340,7 +340,7 @@ void ATMFMFrameBuilder::ValidateFrame(mfm::Frame& frame)
     }
 }
 
-void ATMFMFrameBuilder::Event(mfm::Frame& frame)
+void LKFrameBuilder::Event(mfm::Frame& frame)
 {
     //XXX
     waveforms->frameIdx = 0;
@@ -383,7 +383,7 @@ void ATMFMFrameBuilder::Event(mfm::Frame& frame)
     }
 }
 
-void ATMFMFrameBuilder::UnpackFrame(mfm::Frame& frame)
+void LKFrameBuilder::UnpackFrame(mfm::Frame& frame)
 {
     //XXX
     UInt_t coboIdx = frame.headerField("coboIdx").value<UInt_t>();
@@ -597,7 +597,7 @@ void ATMFMFrameBuilder::UnpackFrame(mfm::Frame& frame)
     }
 }
 
-void ATMFMFrameBuilder::RootFindEvent()
+void LKFrameBuilder::RootFindEvent()
 {
     UInt_t reventIdx1 = 0;
     UInt_t reventIdx2 = 0;
@@ -651,7 +651,7 @@ void ATMFMFrameBuilder::RootFindEvent()
     }
 }
 
-void ATMFMFrameBuilder::RootReadEvent()
+void LKFrameBuilder::RootReadEvent()
 {
     Int_t frameIdx = 0;
     Int_t decayIdx = 0;
@@ -1150,7 +1150,7 @@ void ATMFMFrameBuilder::RootReadEvent()
     bucketmax = oldbucketmax;
 }
 
-void ATMFMFrameBuilder::RootReadWriteEvent() {
+void LKFrameBuilder::RootReadWriteEvent() {
   Int_t frameIdx = 0;
   Int_t decayIdx = 0;
   L1Aflag = 0;
@@ -1390,7 +1390,7 @@ void ATMFMFrameBuilder::RootReadWriteEvent() {
   bucketmax = oldbucketmax;
 }
 
-void ATMFMFrameBuilder::RootReadHistEvent()
+void LKFrameBuilder::RootReadHistEvent()
 {
     Int_t frameIdx = 0;
     Int_t decayIdx = 0;
@@ -1567,7 +1567,7 @@ void ATMFMFrameBuilder::RootReadHistEvent()
 }
 
 //We will get the averaged FPN waveform for each Aget.
-void ATMFMFrameBuilder::GetAverageFPN(Int_t decayIdx, Int_t cobo, Int_t asad, Int_t aget)
+void LKFrameBuilder::GetAverageFPN(Int_t decayIdx, Int_t cobo, Int_t asad, Int_t aget)
 {
     if(rwaveforms[decayIdx][cobo]->hasFPN[asad*4+aget] && !rwaveforms[decayIdx][cobo]->doneFPN[asad*4+aget]){
         for(UInt_t buck=0;buck<bucketmax;buck++){
@@ -1581,7 +1581,7 @@ void ATMFMFrameBuilder::GetAverageFPN(Int_t decayIdx, Int_t cobo, Int_t asad, In
     }
 }
 
-void ATMFMFrameBuilder::DrawWaveForm(Int_t decayIdx, Int_t cobo, Int_t asad, Int_t aget, Int_t chan)
+void LKFrameBuilder::DrawWaveForm(Int_t decayIdx, Int_t cobo, Int_t asad, Int_t aget, Int_t chan)
 {
     Int_t maxyval=0;
     Int_t baseline = rwaveforms[decayIdx][cobo]->baseline[asad*4+aget][chan];
@@ -1671,7 +1671,7 @@ void ATMFMFrameBuilder::DrawWaveForm(Int_t decayIdx, Int_t cobo, Int_t asad, Int
     }
 }
 
-void ATMFMFrameBuilder::GetCorrWaveform(Int_t decayIdx, Int_t cobo, Int_t asad, Int_t aget, Int_t chan)
+void LKFrameBuilder::GetCorrWaveform(Int_t decayIdx, Int_t cobo, Int_t asad, Int_t aget, Int_t chan)
 {
     Int_t minvalue=10000;
     if(enable2pmode==1) decayIdx = rwaveforms[decayIdx][cobo]->decayIdx;
@@ -1727,7 +1727,7 @@ void ATMFMFrameBuilder::GetCorrWaveform(Int_t decayIdx, Int_t cobo, Int_t asad, 
     }
 }
 
-Double_t ATMFMFrameBuilder::GetBaseline(Int_t decayIdx, Int_t cobo, Int_t asad, Int_t aget, Int_t chan)
+Double_t LKFrameBuilder::GetBaseline(Int_t decayIdx, Int_t cobo, Int_t asad, Int_t aget, Int_t chan)
 {
     Double_t baseline;
     Double_t dbaseline;
@@ -1783,7 +1783,7 @@ Double_t ATMFMFrameBuilder::GetBaseline(Int_t decayIdx, Int_t cobo, Int_t asad, 
     return baseline;
 }
 
-void ATMFMFrameBuilder::GetEnergyTime(Int_t decayIdx, Int_t cobo, Int_t asad, Int_t aget, Int_t chan)
+void LKFrameBuilder::GetEnergyTime(Int_t decayIdx, Int_t cobo, Int_t asad, Int_t aget, Int_t chan)
 {
     if(chan==11 || chan==22 || chan==45 || chan==56) return; // We want to skip the FPN channels.
     Int_t maxvalue=10000;
@@ -1955,7 +1955,7 @@ void ATMFMFrameBuilder::GetEnergyTime(Int_t decayIdx, Int_t cobo, Int_t asad, In
 }
 
 /*
-Int_t ATMFMFrameBuilder::GetEnergybyFitWaveform(Int_t type, Int_t decayIdx, Int_t cobo, Int_t asad, Int_t aget, Int_t chan, Int_t maxAt, Int_t peakAt, Int_t *maxValuedec, Int_t *maxvalueBucketdec){
+Int_t LKFrameBuilder::GetEnergybyFitWaveform(Int_t type, Int_t decayIdx, Int_t cobo, Int_t asad, Int_t aget, Int_t chan, Int_t maxAt, Int_t peakAt, Int_t *maxValuedec, Int_t *maxvalueBucketdec){
   Int_t bucketmin = peakAt - maxresponse[type];
   Int_t bucketgap = peakAt - maxAt;
   Int_t bucketmax = peakAt + responsesigma[type]*1.5;
@@ -2005,7 +2005,7 @@ Int_t ATMFMFrameBuilder::GetEnergybyFitWaveform(Int_t type, Int_t decayIdx, Int_
 }
 */
 
-void ATMFMFrameBuilder::GetEnergybyFitWaveform(Int_t type, Int_t decayIdx, Int_t cobo, Int_t asad, Int_t aget, Int_t chan, Int_t peakAt)
+void LKFrameBuilder::GetEnergybyFitWaveform(Int_t type, Int_t decayIdx, Int_t cobo, Int_t asad, Int_t aget, Int_t chan, Int_t peakAt)
 {
     Double_t tau, power;
     TF1* fWaveform;
@@ -2032,8 +2032,8 @@ void ATMFMFrameBuilder::GetEnergybyFitWaveform(Int_t type, Int_t decayIdx, Int_t
         }
 
         if(type==0){
-            //fWaveform = new TF1("fWaveform", this, &ATMFMFrameBuilder::ShaperF_GET1, bucketmin, bucketmax, 6);
-            fWaveform = new TF1("fWaveform", this, &ATMFMFrameBuilder::ShaperF_GET1, 0, 512, 6);
+            //fWaveform = new TF1("fWaveform", this, &LKFrameBuilder::ShaperF_GET1, bucketmin, bucketmax, 6);
+            fWaveform = new TF1("fWaveform", this, &LKFrameBuilder::ShaperF_GET1, 0, 512, 6);
             fWaveform->SetParNames("offset", "amplitude", "peakAt", "sigma", "power", "p2");
             fWaveform->SetParameters(baseline, 500, peakAt, responsesigma[type], 3, 0.2);
             if(saturated>0){
@@ -2043,7 +2043,7 @@ void ATMFMFrameBuilder::GetEnergybyFitWaveform(Int_t type, Int_t decayIdx, Int_t
             fWaveform->FixParameter(3, responsesigma[type]);
             fWaveform->SetParLimits(1, 0, 10000);
         }else if(type==1) {
-            fWaveform = new TF1("fWaveform", this, &ATMFMFrameBuilder::ShaperF_MSCF, bucketmin, bucketmax, 6);
+            fWaveform = new TF1("fWaveform", this, &LKFrameBuilder::ShaperF_MSCF, bucketmin, bucketmax, 6);
             fWaveform->SetParNames("offset", "amplitude", "peakAt", "sigma", "power", "p2");
             fWaveform->SetParameters(baseline, 2000, peakAt, responsesigma[type], 3, 0.2);
             if(saturated>0){
@@ -2053,8 +2053,8 @@ void ATMFMFrameBuilder::GetEnergybyFitWaveform(Int_t type, Int_t decayIdx, Int_t
             fWaveform->FixParameter(3, responsesigma[type]);
             fWaveform->SetParLimits(1, 0, 10000);
         }else if(type==2){
-            //fWaveform = new TF1("fWaveform", this, &ATMFMFrameBuilder::ShaperF_GET2, bucketmin, bucketmax, 5);
-            fWaveform = new TF1("fWaveform", this, &ATMFMFrameBuilder::ShaperF_GET2, 0, 512, 5);
+            //fWaveform = new TF1("fWaveform", this, &LKFrameBuilder::ShaperF_GET2, bucketmin, bucketmax, 5);
+            fWaveform = new TF1("fWaveform", this, &LKFrameBuilder::ShaperF_GET2, 0, 512, 5);
             fWaveform->SetParNames("offset", "amplitude", "peakAt", "sigma", "power");
             if(cobo==0){
                 tau = 4.5; power = 2.3e-3;
@@ -2087,7 +2087,7 @@ void ATMFMFrameBuilder::GetEnergybyFitWaveform(Int_t type, Int_t decayIdx, Int_t
     }
 }
 
-void ATMFMFrameBuilder::ResetHitPattern() {
+void LKFrameBuilder::ResetHitPattern() {
     hGET_THitPattern[goodevtcounter%16]->Reset();
     hGET_EHitPattern[goodevtcounter%16]->Reset();
     hGET_ERHitPattern[goodevtcounter%16]->Reset();
@@ -2104,7 +2104,7 @@ void ATMFMFrameBuilder::ResetHitPattern() {
      */
 }
 
-void ATMFMFrameBuilder::DrawHitPattern(Int_t decayIdx, UInt_t cobo)
+void LKFrameBuilder::DrawHitPattern(Int_t decayIdx, UInt_t cobo)
 {
     Double_t psdratio = 0;
     std::vector<Int_t> si16x16front;
@@ -2266,7 +2266,7 @@ void ATMFMFrameBuilder::DrawHitPattern(Int_t decayIdx, UInt_t cobo)
     }
 }
 
-void ATMFMFrameBuilder::WaveletFilter(Int_t decayIdx, UInt_t cobo)
+void LKFrameBuilder::WaveletFilter(Int_t decayIdx, UInt_t cobo)
 {
     std::vector<Double_t> widths;
     widths.push_back(8);
@@ -2326,7 +2326,7 @@ void ATMFMFrameBuilder::WaveletFilter(Int_t decayIdx, UInt_t cobo)
     }
 }
 
-void ATMFMFrameBuilder::WaveformShapeFilter(Int_t decayIdx, UInt_t cobo)
+void LKFrameBuilder::WaveformShapeFilter(Int_t decayIdx, UInt_t cobo)
 {
     Int_t maxValue = -100000;
     UInt_t maxValueBucket = 0;
@@ -2426,7 +2426,7 @@ void ATMFMFrameBuilder::WaveformShapeFilter(Int_t decayIdx, UInt_t cobo)
      */
 }
 
-void ATMFMFrameBuilder::DrawPSDFilter(Int_t decayIdx, UInt_t cobo)
+void LKFrameBuilder::DrawPSDFilter(Int_t decayIdx, UInt_t cobo)
 {
     Double_t ratiocut=0.0397+0.00412; // centroid + 1sigma for good data
     Int_t maxValue = -100000;
@@ -2469,7 +2469,7 @@ void ATMFMFrameBuilder::DrawPSDFilter(Int_t decayIdx, UInt_t cobo)
     }
 }
 
-void ATMFMFrameBuilder::FillTrack()
+void LKFrameBuilder::FillTrack()
 {
     UInt_t dchan = 0;
     UInt_t spxidx = 0;
@@ -2714,7 +2714,7 @@ void ATMFMFrameBuilder::FillTrack()
     }
 }
 
-void ATMFMFrameBuilder::FindBoxCorner()
+void LKFrameBuilder::FindBoxCorner()
 {
     int rgidx=0;
     for(int i=0;i<3;i++){
@@ -2805,7 +2805,7 @@ void ATMFMFrameBuilder::FindBoxCorner()
     }
 }
 
-void ATMFMFrameBuilder::FindX6Hits()
+void LKFrameBuilder::FindX6Hits()
 {
     Int_t frameIdx = 0;
     Int_t decayIdx = 0;
@@ -3009,7 +3009,7 @@ void ATMFMFrameBuilder::FindX6Hits()
 
 //hMM_SiEvsCsIEAll->Fill(csifrontenergy.at(j),sibackenergy.at(i));
 
-void ATMFMFrameBuilder::DrawSiDetector()
+void LKFrameBuilder::DrawSiDetector()
 {
     int rgidx=0;
 
@@ -3029,7 +3029,7 @@ void ATMFMFrameBuilder::DrawSiDetector()
     }
 }
 
-void ATMFMFrameBuilder::ReplaceEnergy()
+void LKFrameBuilder::ReplaceEnergy()
 {
     int rgidx=0;
     Double_t tan60deg = TMath::Tan(60*TMath::DegToRad());
@@ -3092,7 +3092,7 @@ void ATMFMFrameBuilder::ReplaceEnergy()
     }
 }
 
-void ATMFMFrameBuilder::ReplaceEnergybyRatio()
+void LKFrameBuilder::ReplaceEnergybyRatio()
 {
     Int_t rgidx=0;
     Int_t maxenergy=0;
@@ -3189,7 +3189,7 @@ void ATMFMFrameBuilder::ReplaceEnergybyRatio()
     }
 }
 
-Int_t ATMFMFrameBuilder::GetSumEnergy(Int_t px, Int_t py){
+Int_t LKFrameBuilder::GetSumEnergy(Int_t px, Int_t py){
     Int_t maxenergy=mm_tracks->energy[px][py];
     if(px>0) maxenergy+=mm_tracks->energy[px-1][py];
     maxenergy+=mm_tracks->energy[px+1][py];
@@ -3197,7 +3197,7 @@ Int_t ATMFMFrameBuilder::GetSumEnergy(Int_t px, Int_t py){
     return maxenergy;
 }
 
-void ATMFMFrameBuilder::CleanTrack()
+void LKFrameBuilder::CleanTrack()
 {
     //if(mm_tracks->hasTrack>0 && si_tracks->hasTrack>0)
     if(mm_tracks->hasTrack>0)
@@ -3222,7 +3222,7 @@ void ATMFMFrameBuilder::CleanTrack()
     }
 }
 
-void ATMFMFrameBuilder::FillDecayFlag()
+void LKFrameBuilder::FillDecayFlag()
 {
     UInt_t dchan = 0;
     UInt_t spxidx = 0;
@@ -3286,7 +3286,7 @@ void ATMFMFrameBuilder::FillDecayFlag()
     }
 }
 
-void ATMFMFrameBuilder::GetTrackPosYLimit()
+void LKFrameBuilder::GetTrackPosYLimit()
 {
     int rgidx=0;
     //if(mm_tracks->hasTrack>0 && si_tracks->hasTrack>0)
@@ -3310,7 +3310,7 @@ void ATMFMFrameBuilder::GetTrackPosYLimit()
     }
 }
 
-void ATMFMFrameBuilder::HoughTransform()
+void LKFrameBuilder::HoughTransform()
 {
     double theta;
     double costheta;
@@ -3351,7 +3351,7 @@ void ATMFMFrameBuilder::HoughTransform()
     }
 }
 
-void ATMFMFrameBuilder::GetXYZTrack()
+void LKFrameBuilder::GetXYZTrack()
 {
     int maxbinxy=0;
     int maxbinxt=0;
@@ -3547,7 +3547,7 @@ void ATMFMFrameBuilder::GetXYZTrack()
     }
 }
 
-void ATMFMFrameBuilder::FilldEvsE()
+void LKFrameBuilder::FilldEvsE()
 {
     //if(mm_tracks->hasTrack>0 && si_tracks->hasTrack>0 && si_tracks->hasICE>0)
     //if(mm_tracks->hasTrack>0 && si_tracks->hasTrack>0)
@@ -3598,7 +3598,7 @@ void ATMFMFrameBuilder::FilldEvsE()
     }
 }
 
-void ATMFMFrameBuilder::Sum2pEnergy()
+void LKFrameBuilder::Sum2pEnergy()
 {
     int rgidx=0;
     if(mm_tracks->hasTrack>3 && (mm_tracks->hasDecay)){
@@ -3628,7 +3628,7 @@ void ATMFMFrameBuilder::Sum2pEnergy()
     }
 }
 
-void ATMFMFrameBuilder::DrawSumEnergyTrack()
+void LKFrameBuilder::DrawSumEnergyTrack()
 {
     int rgidx=0;
     int sumstrip[170];
@@ -3727,7 +3727,7 @@ void ATMFMFrameBuilder::DrawSumEnergyTrack()
     }
 }
 
-void ATMFMFrameBuilder::ChangeTrackHistTitle()
+void LKFrameBuilder::ChangeTrackHistTitle()
 {
     TString title0 = Form("[D2PTime=%d usec, FrameNo~%d, EventNo=%d, goodevtcounter=%d]",int(rd2ptime/1000),(reventIdx-FirsteventIdx+2),reventIdx,goodevtcounter);
     hMM_Track[goodevtcounter%16]->SetTitle(Form("Single Event Track by channels %s;Cell ID X;Cell ID Y",title0.Data()));
@@ -3744,7 +3744,7 @@ void ATMFMFrameBuilder::ChangeTrackHistTitle()
     hMM_SumEnergyvsPxIDY[goodevtcounter%16]->SetTitle(Form("Single Event Sum Energy vs Pixel Y %s;Cell ID Y",reventIdx,title0.Data()));
 }
 
-void ATMFMFrameBuilder::DrawTrack()
+void LKFrameBuilder::DrawTrack()
 {
     int rgidx=0;
     int fusionflag=0;
@@ -3856,7 +3856,7 @@ void ATMFMFrameBuilder::DrawTrack()
     }
 }
 
-void ATMFMFrameBuilder::DrawTrack2pMode()
+void LKFrameBuilder::DrawTrack2pMode()
 {
     int rgidx=0;
     int gtrackidx=0;
@@ -3914,13 +3914,13 @@ void ATMFMFrameBuilder::DrawTrack2pMode()
     }
 }
 
-void ATMFMFrameBuilder::InitTrack()
+void LKFrameBuilder::InitTrack()
 {
     rpos = new TRandom();
     ResetTrack();
 }
 
-void ATMFMFrameBuilder::DrawSiEvsCsIE()
+void LKFrameBuilder::DrawSiEvsCsIE()
 {
     int rgidx=0;
     int detno=0;
@@ -3959,7 +3959,7 @@ void ATMFMFrameBuilder::DrawSiEvsCsIE()
     }
 }
 
-void ATMFMFrameBuilder::ResetdEvsE(){
+void LKFrameBuilder::ResetdEvsE(){
     for(int i=0;i<3;i++){
         hMM_TrackCounter1[i]=0;
         hMM_TrackCounter2[i]=0;
@@ -3969,7 +3969,7 @@ void ATMFMFrameBuilder::ResetdEvsE(){
     }
 }
 
-void ATMFMFrameBuilder::DrawdEvsE(){
+void LKFrameBuilder::DrawdEvsE(){
     int rgidx=0;
     for(int j=112;j<128;j++){
         if(mm_tracks->sumenergy[j]>0){
@@ -4032,7 +4032,7 @@ void ATMFMFrameBuilder::DrawdEvsE(){
     }
 }
 
-void ATMFMFrameBuilder::ResetTrack(){
+void LKFrameBuilder::ResetTrack(){
     rx = 0;
     ry = 0;
     rz = 0;
@@ -4090,7 +4090,7 @@ void ATMFMFrameBuilder::ResetTrack(){
     }
 }
 
-void ATMFMFrameBuilder::ResetTrackHist()
+void LKFrameBuilder::ResetTrackHist()
 {
     gMM_TrackDecay[goodevtcounter%16]->Clear();
     gMM_TrackDecayPos[goodevtcounter%16]->Clear();
@@ -4218,7 +4218,7 @@ void ATMFMFrameBuilder::ResetTrackHist()
     //}
 }
 
-void ATMFMFrameBuilder::decodeCoBoTopologyFrame(mfm::Frame& frame) {
+void LKFrameBuilder::decodeCoBoTopologyFrame(mfm::Frame& frame) {
     if (frame.header().frameType() == 0x7){
         // Print meta-data
         //cout << "Topology:" << endl;
@@ -4234,7 +4234,7 @@ void ATMFMFrameBuilder::decodeCoBoTopologyFrame(mfm::Frame& frame) {
     }
 }
 
-void ATMFMFrameBuilder::InitMutantScaler()
+void LKFrameBuilder::InitMutantScaler()
 {
     printed=0;
     prevmidx=0;
@@ -4259,36 +4259,36 @@ void ATMFMFrameBuilder::InitMutantScaler()
     remove("scalers.txt");
 }
 
-void ATMFMFrameBuilder::SetReadMode(int flag){
+void LKFrameBuilder::SetReadMode(int flag){
     readmode = flag;
 }
 
-int ATMFMFrameBuilder::GetReadMode(){
+int LKFrameBuilder::GetReadMode(){
     return readmode;
 }
 
-void ATMFMFrameBuilder::SetReadType(int flag){
+void LKFrameBuilder::SetReadType(int flag){
     readtype = flag;
 }
 
-void ATMFMFrameBuilder::SetScaler(int flag){
+void LKFrameBuilder::SetScaler(int flag){
     enablescaler = flag;
 }
 
-void ATMFMFrameBuilder::Set2pMode(int flag){
+void LKFrameBuilder::Set2pMode(int flag){
     enable2pmode = flag;
 }
 
-void ATMFMFrameBuilder::SetHistMode(){
+void LKFrameBuilder::SetHistMode(){
     enablehist = 1;
 }
 
-void ATMFMFrameBuilder::SetUpdateSpeed(int flag){
+void LKFrameBuilder::SetUpdateSpeed(int flag){
     enableupdatefast = flag;
 }
 
 
-void ATMFMFrameBuilder::decodeMuTanTFrame(mfm::Frame & frame)
+void LKFrameBuilder::decodeMuTanTFrame(mfm::Frame & frame)
 {
     mutantcounter++;
     if (frame.header().frameType() == 0x8)
@@ -4386,7 +4386,7 @@ void ATMFMFrameBuilder::decodeMuTanTFrame(mfm::Frame & frame)
     }
 }
 
-void ATMFMFrameBuilder::RootWOpenFile(string & outputFileName, string & outputTreeName)
+void LKFrameBuilder::RootWOpenFile(string & outputFileName, string & outputTreeName)
 {
     return;
     cout<<"FIRST EVENT?:\t"<<IsFirstevent<<endl;
@@ -4415,7 +4415,7 @@ void ATMFMFrameBuilder::RootWOpenFile(string & outputFileName, string & outputTr
     //cout << Form("Created new TTree named %s in %s (new=%d)",outputTreeName.c_str(),outputFileName.c_str(),IsFirstevent) << endl;
 }
 
-void ATMFMFrameBuilder::RootWInit()
+void LKFrameBuilder::RootWInit()
 {
     //XXX
     return;
@@ -4457,7 +4457,7 @@ void ATMFMFrameBuilder::RootWInit()
     }
 }
 
-void ATMFMFrameBuilder::RootWReset()
+void LKFrameBuilder::RootWReset()
 {
     for(int i=0;i<=wGETMul;i++){
         wGETFrameNo[i] = 0;
@@ -4475,7 +4475,7 @@ void ATMFMFrameBuilder::RootWReset()
     }
 }
 
-void ATMFMFrameBuilder::RootWConvert()
+void LKFrameBuilder::RootWConvert()
 {
     //XXX
     UInt_t frameIdx = waveforms->frameIdx;
@@ -4533,7 +4533,7 @@ void ATMFMFrameBuilder::RootWConvert()
     }
 }
 
-void ATMFMFrameBuilder::RootWriteEvent(){
+void LKFrameBuilder::RootWriteEvent(){
     if(wGETMul>0){
         //cout << "Writing data: " << wGETEventIdx << " " << wGETMul << endl;
         fOutputFile->cd();
@@ -4573,22 +4573,22 @@ void ATMFMFrameBuilder::RootWriteEvent(){
     }
 }
 
-void ATMFMFrameBuilder::RootWCloseFile(){
+void LKFrameBuilder::RootWCloseFile(){
     //fOutputFile->cd();
     fOutputFile->Close();
     IsFirstevent = true;
 }
 
-bool ATMFMFrameBuilder::RootRRecovered(){
+bool LKFrameBuilder::RootRRecovered(){
     return fInputFile->TestBit(TFile::kRecovered);
 }
 
-UInt_t ATMFMFrameBuilder::GetRootFileSize(){
+UInt_t LKFrameBuilder::GetRootFileSize(){
     fInputFileSize = fInputFile->GetSize();
     return fInputFileSize;
 }
 
-void ATMFMFrameBuilder::RootROpenFile(string & inputFileName, string & inputTreeName){
+void LKFrameBuilder::RootROpenFile(string & inputFileName, string & inputTreeName){
     size_t f = inputFileName.find("online");
     if(f!=std::string::npos) gErrorIgnoreLevel = kFatal;
     fInputFile = new TFile(inputFileName.c_str(),"read");
@@ -4604,7 +4604,7 @@ void ATMFMFrameBuilder::RootROpenFile(string & inputFileName, string & inputTree
     if(f!=std::string::npos) gErrorIgnoreLevel = kError;
 }
 
-void ATMFMFrameBuilder::RootRInit(){
+void LKFrameBuilder::RootRInit(){
     if(readmode==0){
         fNumberEvents = 1;
     }else{
@@ -4680,7 +4680,7 @@ void ATMFMFrameBuilder::RootRInit(){
     RootRInitWaveforms();
 }
 
-void ATMFMFrameBuilder::RootRInitWaveforms() {
+void LKFrameBuilder::RootRInitWaveforms() {
     Int_t decayIdxMax=1;
     if(enable2pmode==1) decayIdxMax=2;
 
@@ -4728,7 +4728,7 @@ void ATMFMFrameBuilder::RootRInitWaveforms() {
     }
 }
 
-void ATMFMFrameBuilder::RootRResetWaveforms() {
+void LKFrameBuilder::RootRResetWaveforms() {
     Int_t decayIdxMax=1;
     if(enable2pmode==1) decayIdxMax=2;
 
@@ -4781,7 +4781,7 @@ void ATMFMFrameBuilder::RootRResetWaveforms() {
     }
 }
 
-void ATMFMFrameBuilder::RootRReset(){
+void LKFrameBuilder::RootRReset(){
     rGETHit = 0;
     rGETEventIdx = 0;
     rGETD2PTime = 0;
@@ -4804,12 +4804,12 @@ void ATMFMFrameBuilder::RootRReset(){
     rGETMul = 0;
 }
 
-void ATMFMFrameBuilder::RootRCloseFile(){
+void LKFrameBuilder::RootRCloseFile(){
     fInputFile->cd();
     fInputFile->Close();
 }
 
-void ATMFMFrameBuilder::RootRWOpenFile(string & outputFileName, string & outputTreeName){
+void LKFrameBuilder::RootRWOpenFile(string & outputFileName, string & outputTreeName){
     if(IsFirstevent){
         fOutputFile = new TFile(outputFileName.c_str(),"recreate");
         fOutputTree = new TTree(outputTreeName.c_str(),"Experimental Event Data");
@@ -4824,7 +4824,7 @@ void ATMFMFrameBuilder::RootRWOpenFile(string & outputFileName, string & outputT
     cout << Form("Created new TTree named %s in %s (new=%d)",outputTreeName.c_str(),outputFileName.c_str(),IsFirstevent) << endl;
 }
 
-void ATMFMFrameBuilder::RootRWInit(){
+void LKFrameBuilder::RootRWInit(){
     wGETMul = 0;
     wGETHit = 0;
     wGETEventIdx = 0;
@@ -4856,7 +4856,7 @@ void ATMFMFrameBuilder::RootRWInit(){
     fOutputTree->Branch("mmEnergy",wGETEnergy,"mmEnergy[mmMul]/F");
 }
 
-void ATMFMFrameBuilder::RootRWriteEvent(){
+void LKFrameBuilder::RootRWriteEvent(){
     if(wGETMul>0){
         //cout << "Writing data: " << wGETEventIdx << " " << wGETMul << endl;
         fOutputFile->cd();
@@ -4882,12 +4882,12 @@ void ATMFMFrameBuilder::RootRWriteEvent(){
     }
 }
 
-void ATMFMFrameBuilder::RootRWCloseFile(){
+void LKFrameBuilder::RootRWCloseFile(){
     fOutputFile->cd();
     fOutputFile->Close();
 }
 
-void ATMFMFrameBuilder::RootRWReset(){
+void LKFrameBuilder::RootRWReset(){
     for(int i=0;i<=wGETMul;i++){
         wGETFrameNo[i] = 0;
         wGETDecayNo[i] = 0;
@@ -4903,7 +4903,7 @@ void ATMFMFrameBuilder::RootRWReset(){
     wGETHit=0;
 }
 
-void ATMFMFrameBuilder::RootRHInit(){
+void LKFrameBuilder::RootRHInit(){
     fInputTree->SetBranchAddress("mmMul",&rGETMul);
     fInputTree->SetBranchAddress("mmHit",&rGETHit);
     fInputTree->SetBranchAddress("mmEventIdx",&rGETEventIdx);
@@ -4938,7 +4938,7 @@ void ATMFMFrameBuilder::RootRHInit(){
     RootRHInitWaveforms();
 }
 
-void ATMFMFrameBuilder::RootRHInitWaveforms() {
+void LKFrameBuilder::RootRHInitWaveforms() {
     Int_t decayIdxMax=1;
     if(enable2pmode==1) decayIdxMax=2;
 
@@ -4970,7 +4970,7 @@ void ATMFMFrameBuilder::RootRHInitWaveforms() {
     }
 }
 
-void ATMFMFrameBuilder::RootRHResetWaveforms()
+void LKFrameBuilder::RootRHResetWaveforms()
 {
     Int_t decayIdxMax=1;
     if(enable2pmode==1) decayIdxMax=2;
@@ -5001,7 +5001,7 @@ void ATMFMFrameBuilder::RootRHResetWaveforms()
     }
 }
 
-void ATMFMFrameBuilder::RootRHReset()
+void LKFrameBuilder::RootRHReset()
 {
     rGETHit = 0;
     rGETEventIdx = 0;
@@ -5021,43 +5021,43 @@ void ATMFMFrameBuilder::RootRHReset()
     rGETMul = 0;
 }
 
-void ATMFMFrameBuilder::SetBucketSize(int BucketSize){
+void LKFrameBuilder::SetBucketSize(int BucketSize){
     bucketmax = BucketSize;
 }
 
-void ATMFMFrameBuilder::SetRootConverter(int flag){
+void LKFrameBuilder::SetRootConverter(int flag){
     enableroot = flag; // this is not used anywere...
 }
 
-int ATMFMFrameBuilder::GetForceReadTree(){
+int LKFrameBuilder::GetForceReadTree(){
     return forcereadtree;
 }
 
-void ATMFMFrameBuilder::SetIgnoreMM(int flag){
+void LKFrameBuilder::SetIgnoreMM(int flag){
     ignoremm = flag;
 }
 
-void ATMFMFrameBuilder::SetDrawWaveform(int flag){
+void LKFrameBuilder::SetDrawWaveform(int flag){
     enabledraww = flag;
 }
 
-void ATMFMFrameBuilder::SetCleanTrack(int flag){
+void LKFrameBuilder::SetCleanTrack(int flag){
     enablecleantrack = flag;
 }
 
-void ATMFMFrameBuilder::SetDrawTrack(int flag){
+void LKFrameBuilder::SetDrawTrack(int flag){
     enabletrack = flag;
 }
 
-void ATMFMFrameBuilder::SetSkipEvents(int flag){
+void LKFrameBuilder::SetSkipEvents(int flag){
     enableskipevent = flag;
 }
 
-void ATMFMFrameBuilder::SetfirstEventNo(int flag){
+void LKFrameBuilder::SetfirstEventNo(int flag){
     firsteventno = flag;
 }
 
-void ATMFMFrameBuilder::ReadGoodEventList(string filename){
+void LKFrameBuilder::ReadGoodEventList(string filename){
     cout << "goodevtlistfilename is " << filename << endl;
     int goodevtno=0;
     ifstream goodevtlist;
@@ -5076,7 +5076,7 @@ void ATMFMFrameBuilder::ReadGoodEventList(string filename){
     goodevtlist.close();
 }
 
-void ATMFMFrameBuilder::ReadMapChanToMM(string filename){
+void LKFrameBuilder::ReadMapChanToMM(string filename){
     ifstream MapEData;
     UInt_t asadid;
     UInt_t agetid;
@@ -5096,7 +5096,7 @@ void ATMFMFrameBuilder::ReadMapChanToMM(string filename){
     MapEData.close();
 }
 
-void ATMFMFrameBuilder::ReadMapChanToSi(string filename){
+void LKFrameBuilder::ReadMapChanToSi(string filename){
     ifstream MapEData;
     UInt_t asadid;
     UInt_t agetid;
@@ -5116,7 +5116,7 @@ void ATMFMFrameBuilder::ReadMapChanToSi(string filename){
     MapEData.close();
 }
 
-void ATMFMFrameBuilder::ReadMapChanToX6(){
+void LKFrameBuilder::ReadMapChanToX6(){
     UInt_t tX6asad;
     UInt_t tX6aget;
     UInt_t tX6chan;
@@ -5171,15 +5171,15 @@ void ATMFMFrameBuilder::ReadMapChanToX6(){
     mapchantoX6CsI.close();
 }
 
-void ATMFMFrameBuilder::SetEnergyMethod(int flag){
+void LKFrameBuilder::SetEnergyMethod(int flag){
     energymethod = flag;
 }
 
-void ATMFMFrameBuilder::SetReadRF(int flag){
+void LKFrameBuilder::SetReadRF(int flag){
     readrw = flag;
 }
 
-void ATMFMFrameBuilder::ReadResponseWaveform(string filename){
+void LKFrameBuilder::ReadResponseWaveform(string filename){
     ifstream ResponseData;
     UInt_t type;
     UInt_t timebucket;
@@ -5211,7 +5211,7 @@ void ATMFMFrameBuilder::ReadResponseWaveform(string filename){
     ResponseData.close();
 }
 
-void ATMFMFrameBuilder::SetResponseSample(Int_t type, Int_t evtno, Int_t buckcut, Int_t buckwidth, Int_t cobo, Int_t asad, Int_t aget, Int_t chan, Int_t rep, Int_t iter, Int_t boost)
+void LKFrameBuilder::SetResponseSample(Int_t type, Int_t evtno, Int_t buckcut, Int_t buckwidth, Int_t cobo, Int_t asad, Int_t aget, Int_t chan, Int_t rep, Int_t iter, Int_t boost)
 {
     responsesample[type][0] = evtno;
     responsesample[type][1] = cobo;
@@ -5226,12 +5226,12 @@ void ATMFMFrameBuilder::SetResponseSample(Int_t type, Int_t evtno, Int_t buckcut
     if(maxrespsample<=type) maxrespsample = type;
 }
 
-Bool_t ATMFMFrameBuilder::IsResponseSample(Int_t type, Int_t cobo, Int_t asad, Int_t aget, Int_t chan){
+Bool_t LKFrameBuilder::IsResponseSample(Int_t type, Int_t cobo, Int_t asad, Int_t aget, Int_t chan){
     if(responsesample[type][1] == cobo && responsesample[type][2] == asad && responsesample[type][3] == aget && responsesample[type][4] == chan) return true;
     return false;
 }
 
-void ATMFMFrameBuilder::SetResponseWaveform(){
+void LKFrameBuilder::SetResponseWaveform(){
     Int_t decayIdx = 0;
     Int_t coboIdx = 0;
     Int_t asadIdx = 0;
@@ -5297,7 +5297,7 @@ void ATMFMFrameBuilder::SetResponseWaveform(){
     }
 }
 
-void ATMFMFrameBuilder::GetMaxResponseWaveform(){
+void LKFrameBuilder::GetMaxResponseWaveform(){
     Int_t maxamplitude;
     for(int i=0;i<=maxrespsample;i++){
         maxamplitude=-10000;
@@ -5310,17 +5310,17 @@ void ATMFMFrameBuilder::GetMaxResponseWaveform(){
     }
 }
 
-void ATMFMFrameBuilder::GetSigmaResponseWaveform(){
+void LKFrameBuilder::GetSigmaResponseWaveform(){
     for(int i=0;i<=maxrespsample;i++){
         hResponse[i] = new TH1D(Form("hResponse_%d",i),Form("hResponse_%d",i),512,0,512);
         if(i==0){
-            fResponse[i] = new TF1(Form("fResponse_%d",i), this, &ATMFMFrameBuilder::ShaperF_GET1, 0, 512, 6);
+            fResponse[i] = new TF1(Form("fResponse_%d",i), this, &LKFrameBuilder::ShaperF_GET1, 0, 512, 6);
             fResponse[i]->SetParNames("offset", "amplitude", "peakAt", "sigma", "power", "p2");
             fResponse[i]->SetParameters(10, 500, 80, 15, 3, 0.2);
             fResponse[i]->SetParLimits(1, 0, 10000);
             fResponse[i]->SetParLimits(3, 0, 50);
         }else if(i>0) {
-            fResponse[i] = new TF1(Form("fResponse_%d",i), this, &ATMFMFrameBuilder::ShaperF_MSCF, 0, 512, 6);
+            fResponse[i] = new TF1(Form("fResponse_%d",i), this, &LKFrameBuilder::ShaperF_MSCF, 0, 512, 6);
             fResponse[i]->SetParNames("offset", "amplitude", "peakAt", "sigma", "power", "p2");
             fResponse[i]->SetParameters(10, 2000, 80, 25, 3, 0.2);
             fResponse[i]->SetParLimits(1, 0, 10000);
@@ -5342,7 +5342,7 @@ void ATMFMFrameBuilder::GetSigmaResponseWaveform(){
     }
 }
 
-Double_t ATMFMFrameBuilder::ShaperF_GET1(Double_t *x, Double_t *p) {
+Double_t LKFrameBuilder::ShaperF_GET1(Double_t *x, Double_t *p) {
     Double_t semiGaus = p[1]*22.68113723*TMath::Exp(-3.0*(x[0] - p[2])/p[3])*sin((x[0] - p[2])/p[3])*pow((x[0] - p[2])/p[3], p[4]);
     return (x[0] >= p[2]) ? p[0] + x[0]*p[5] + semiGaus : p[0] + x[0]*p[5];
     /*
@@ -5355,12 +5355,12 @@ Double_t ATMFMFrameBuilder::ShaperF_GET1(Double_t *x, Double_t *p) {
      */
 }
 
-Double_t ATMFMFrameBuilder::ShaperF_MSCF(Double_t *x, Double_t *p) {
+Double_t LKFrameBuilder::ShaperF_MSCF(Double_t *x, Double_t *p) {
     Double_t semiGaus = p[1]*21.928*TMath::Exp(-3.0*(x[0] - p[2])/p[3])*sin((x[0] - p[2])/p[3])*pow((x[0] - p[2])/p[3], p[4]);
     return (x[0] >= p[2]) ? p[0] + x[0]*p[5] + semiGaus : p[0] + x[0]*p[5];
 }
 
-Double_t ATMFMFrameBuilder::ShaperF_GET2(Double_t *x, Double_t *p) {
+Double_t LKFrameBuilder::ShaperF_GET2(Double_t *x, Double_t *p) {
     Double_t semiGaus = p[0] + 0.5*p[1]*(1.0 + TMath::TanH( (x[0]-p[2])/p[3])) * TMath::Exp(-p[4]*((x[0]-p[2])*(x[0]-p[2])));
     return semiGaus;
 }

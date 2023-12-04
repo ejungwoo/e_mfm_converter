@@ -1,5 +1,5 @@
-#ifndef ATMFMFRAMEBUILDER_H
-#define ATMFMFRAMEBUILDER_H
+#ifndef LKFRAMEBUILDER_H
+#define LKFRAMEBUILDER_H
 
 #include "mfm/FrameBuilder.h"
 #include <map>
@@ -166,16 +166,16 @@ class MapChanToX6 {
         UInt_t CsI_X6ud[4][4][68];
 };
 
-class ATMFMFrameBuilder : public mfm::FrameBuilder {
+class LKFrameBuilder : public mfm::FrameBuilder {
     public:
         void SetChannelArray(TClonesArray *channelArray) { fChannelArray = channelArray; }
 
-    pritave:
+    private:
         TClonesArray *fChannelArray = nullptr;
 
     public:
-        ATMFMFrameBuilder(int);
-        ~ATMFMFrameBuilder();
+        LKFrameBuilder(int);
+        ~LKFrameBuilder();
         void processFrame(mfm::Frame & frame);
         void InitWaveforms();
         void ResetWaveforms();
